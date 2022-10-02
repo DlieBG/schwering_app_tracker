@@ -1,4 +1,4 @@
-import { Controller, Post, Headers, Body, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Post, Headers, Body, UnauthorizedException, InternalServerErrorException, Get } from '@nestjs/common';
 import { DbService } from 'src/services/db/db.service';
 
 @Controller('arduino')
@@ -54,8 +54,7 @@ export class ArduinoController {
                         type: 'fix',
                         lat: parseFloat(payload.split('#')[0]) / 1000000,
                         lon: parseFloat(payload.split('#')[1]) / 1000000,
-                        hdop: parseInt(payload.split('#')[2]),
-                        speed: parseFloat(payload.split('#')[3]) / 100 * 1.852
+                        speed: parseFloat(payload.split('#')[2]) / 100 * 1.852
                     });
             else
                 await this.dbService
@@ -68,8 +67,7 @@ export class ArduinoController {
                         type: 'no-fix',
                         lat: null,
                         lon: null,
-                        hdop: 0,
-                        speed: 0
+                        speed: null
                     });
             
             return {
