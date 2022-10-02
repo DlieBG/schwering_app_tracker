@@ -53,7 +53,7 @@ export class ArduinoController {
                                 hotspotId: hotspot.id,
                                 name: body.name,
                                 lat: hotspot.lat,
-                                lon: hotspot.lon,
+                                lon: hotspot.long,
                                 lastSeen: new Date()
                             }
                         },
