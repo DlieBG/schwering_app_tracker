@@ -41,16 +41,50 @@ export class ArduinoController {
                     }
                 );
 
+            for(let hotspot of body.hotspots)
+                await this.dbService
+                    .getCollection('hotspots')
+                    .updateOne(
+                        {
+                            hotspotId: hotspot.id
+                        },
+                        {
+                            $set: {
+                                hotspotId: hotspot.id,
+                                name: body.name,
+                                lat: hotspot.lat,
+                                lon: hotspot.lon,
+                                lastSeen: new Date()
+                            }
+                        },
+                        {
+                            upsert: true
+                        }
+                    );
+
             let payload = Buffer.from(body.payload, 'base64').toString('binary');
+            let position = {
+                deviceId: body.id,
+                hotspots: body.hotspots.map(
+                    (hotspot) => {
+                        return {
+                            hotspotId: hotspot.id,
+                            rssi: hotspot.rssi,
+                            snr: hotspot.snr,
+                            status: hotspot.status
+                        }
+                    }
+                ),
+                rawPayload: body.payload,
+                decodedPayload: payload,
+                time: new Date()
+            };
             
             if(payload != '')
                 await this.dbService
                     .getCollection('positions')
                     .insertOne({
-                        deviceId: body.id,
-                        rawPayload: body.payload,
-                        decodedPayload: payload,
-                        time: new Date(),
+                        ...position,
                         type: 'fix',
                         lat: parseFloat(payload.split('#')[0]) / 1000000,
                         lon: parseFloat(payload.split('#')[1]) / 1000000,
@@ -60,10 +94,7 @@ export class ArduinoController {
                 await this.dbService
                     .getCollection('positions')
                     .insertOne({
-                        deviceId: body.id,
-                        rawPayload: body.payload,
-                        decodedPayload: payload,
-                        time: new Date(),
+                        ...position,
                         type: 'no-fix',
                         lat: null,
                         lon: null,

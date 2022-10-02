@@ -4,11 +4,6 @@
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
 
-SoftwareSerial gpsSerial(6, -1);
-TinyGPS gps;
-
-static osjob_t sendjob;
-
 const unsigned TX_INTERVAL = 10;
 
 const lmic_pinmap lmic_pins = {
@@ -17,6 +12,11 @@ const lmic_pinmap lmic_pins = {
     .rst = 9,
     .dio = {3, 4, 5},
 };
+
+SoftwareSerial gpsSerial(6, -1);
+TinyGPS gps;
+
+static osjob_t sendjob;
 
 void onEvent (ev_t event) {
     switch(event) {
@@ -54,7 +54,6 @@ void onEvent (ev_t event) {
               Serial.write(LMIC.frame + LMIC.dataBeg, LMIC.dataLen);
               Serial.println();
             }
-            
             break;
         case EV_LOST_TSYNC:
             Serial.println(F("EV_LOST_TSYNC"));
@@ -90,38 +89,33 @@ void onEvent (ev_t event) {
 }
 
 void send_gps(osjob_t* j){
-    if (LMIC.opmode & OP_TXRXPEND)
-        Serial.println(F("OP_TXRXPEND, not sending"));
-    else {
-        String gps_data_string = "";
-        bool new_data = false;
-        
-        while(Serial.available() > 0)
-            Serial.read();
-      
-        for (unsigned long start = millis(); millis() - start < 2000 && !new_data;) {
-            while(gpsSerial.available() && !new_data) {
-                if(gps.encode(gpsSerial.read())) {
-                    long lat, lon;
-                    gps.get_position(&lat, &lon);
-                    gps_data_string.concat(lat);
-                    gps_data_string.concat("#");
-                    gps_data_string.concat(lon);
-                    gps_data_string.concat("#");
-                    gps_data_string.concat(gps.speed());
-                    new_data = true;
-                }
+    String gps_data_string = "";
+    bool new_data = false;
+    
+    while(Serial.available() > 0)
+        Serial.read();
+  
+    for(unsigned long start = millis(); millis() - start < 2000 && !new_data;) {
+        while(gpsSerial.available() && !new_data) {
+            if(gps.encode(gpsSerial.read())) {
+                long lat, lon;
+                gps.get_position(&lat, &lon);
+                gps_data_string.concat(lat);
+                gps_data_string.concat("#");
+                gps_data_string.concat(lon);
+                gps_data_string.concat("#");
+                gps_data_string.concat(gps.speed());
+                new_data = true;
             }
         }
-      
-        LMIC_setTxData2(1, gps_data_string.c_str(), gps_data_string.length(), 0);
-          
-        Serial.println(F("Packet queued"));
-        Serial.println(gps_data_string);
-
-        
-        os_setTimedCallback(&sendjob, os_getTime() + sec2osticks(TX_INTERVAL), send_gps);
     }
+  
+    LMIC_setTxData2(1, gps_data_string.c_str(), gps_data_string.length(), 0);
+      
+    Serial.println(F("Packet queued"));
+    Serial.println(gps_data_string);
+    
+    os_setTimedCallback(&sendjob, os_getTime() + sec2osticks(TX_INTERVAL), send_gps);
 }
 
 void setup() {
