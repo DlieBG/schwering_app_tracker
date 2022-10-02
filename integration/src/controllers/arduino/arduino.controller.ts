@@ -51,7 +51,7 @@ export class ArduinoController {
                         {
                             $set: {
                                 hotspotId: hotspot.id,
-                                name: body.name,
+                                name: hotspot.name,
                                 lat: hotspot.lat,
                                 lon: hotspot.long,
                                 lastSeen: new Date()
