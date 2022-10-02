@@ -1,3 +1,4 @@
+
 // Least Significant Bit
 static const u1_t PROGMEM APPEUI[8]= { 0x9B, 0x50, 0xF6, 0xDA, 0xC5, 0xF9, 0x81, 0x60};
 void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}

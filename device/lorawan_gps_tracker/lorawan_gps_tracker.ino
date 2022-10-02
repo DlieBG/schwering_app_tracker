@@ -10,13 +10,7 @@ SoftwareSerial gpsSerial(6, -1);
 
 static osjob_t sendjob;
 
-const unsigned TX_INTERVAL = 60;
-
-float lat, lon;
-unsigned long age;
-
-uint8_t gps_data_string;
-bool gps_new_data = false;
+const unsigned TX_INTERVAL = 10;
 
 // Pin mapping
 const lmic_pinmap lmic_pins = {
@@ -102,13 +96,36 @@ void send_gps(osjob_t* j){
     if (LMIC.opmode & OP_TXRXPEND) {
         Serial.println(F("OP_TXRXPEND, not sending"));
     } else {
-        if(gps_new_data)
-          LMIC_setTxData2(1, (uint8_t *)gps_data_string, sizeof((uint8_t *)gps_data_string) - 1, 0);
 
-        gps_new_data = false;
+       
+      String gps_data_string = "";
+      bool new_data = false;
+      
+      while(Serial.available() > 0) {
+        Serial.read();
+      }
+      
+      for (unsigned long start = millis(); millis() - start < 2000 && !new_data;) {
+        while(gpsSerial.available() && !new_data) {
+          if(gps.encode(gpsSerial.read())) {
+            long lat, lon;
+            gps.get_position(&lat, &lon);
+            gps_data_string.concat(lat);
+            gps_data_string.concat("#");
+            gps_data_string.concat(lon);
+            gps_data_string.concat("#");
+            gps_data_string.concat(gps.hdop());
+            gps_data_string.concat("#");
+            gps_data_string.concat(gps.speed());
+            new_data = true;
+          }
+        }
+    }
+      
+        LMIC_setTxData2(1, gps_data_string.c_str(), gps_data_string.length(), 0);
           
         Serial.println(F("Packet queued"));
-        Serial.write(gps_data_string);
+        Serial.println(gps_data_string);
     }
 }
 
@@ -127,13 +144,4 @@ void setup() {
 
 void loop() {
     os_runloop_once();
-
-    if(gpsSerial.available()) {
-      if(gps.encode(gpsSerial.read())) {
-        gps.f_get_position(&lat, &lon, &age);
-        //gps_data_string = (uint8_t *) String(String(lat) + "#" + String(lon)).c_str();// + String(gps.f_speed_kmph()) + "#" + String(gps.hdop());
-        gps_new_data = true;
-        Serial.println("Jau");
-      }
-    }
 }

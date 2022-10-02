@@ -16,20 +16,67 @@ export class ArduinoController {
         if(process.env.SHARED_SECRET != sharedSecret)
             throw new UnauthorizedException();
 
-        return this.dbService
-            .getCollection('raw')
-            .insertOne(body)
-            .then(
-                () => {
-                    return {
-                        ok: true
+        try {
+            await this.dbService
+                .getCollection('arduino_raw')
+                .insertOne(body);
+
+            await this.dbService
+                .getCollection('devices')
+                .updateOne(
+                    {
+                        deviceId: body.id
+                    },
+                    {
+                        $set: {
+                            deviceId: body.id,
+                            name: body.name,
+                            type: 'arduino',
+                            downlinkUrl: body.downlink_url,
+                            lastSeen: new Date()
+                        }
+                    },
+                    {
+                        upsert: true
                     }
-                }
-            )
-            .catch(
-                () => {
-                    throw new InternalServerErrorException();
-                }
-            );
+                );
+
+            let payload = Buffer.from(body.payload, 'base64').toString('binary');
+            
+            if(payload != '')
+                await this.dbService
+                    .getCollection('positions')
+                    .insertOne({
+                        deviceId: body.id,
+                        rawPayload: body.payload,
+                        decodedPayload: payload,
+                        time: new Date(),
+                        type: 'fix',
+                        lat: parseFloat(payload.split('#')[0]) / 1000000,
+                        lon: parseFloat(payload.split('#')[1]) / 1000000,
+                        hdop: parseInt(payload.split('#')[2]),
+                        speed: parseFloat(payload.split('#')[3]) / 100 * 1.852
+                    });
+            else
+                await this.dbService
+                    .getCollection('positions')
+                    .insertOne({
+                        deviceId: body.id,
+                        rawPayload: body.payload,
+                        decodedPayload: payload,
+                        time: new Date(),
+                        type: 'no-fix',
+                        lat: null,
+                        lon: null,
+                        hdop: 0,
+                        speed: 0
+                    });
+            
+            return {
+                ok: true
+            };
+        } catch {
+            throw new InternalServerErrorException();
+        }
     }
 }
