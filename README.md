@@ -1,2 +1,2 @@
 # schwering_app_tracker
-LoraWAN GPS tracker module for schwering_app
+LoRaWAN GPS tracker module for schwering_app

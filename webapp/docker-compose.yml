@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  frontend:
+    image: ghcr.io/dliebg/schwering_app_tracker/frontend:main
+    container_name: schwering_app_tracker_frontend
+    restart: unless-stopped
+    ports:
+      - 10005:80
+    labels:
+      - "com.centurylinklabs.watchtower.scope=schwering_app_tracker"
+
+  backend:
+    image: ghcr.io/dliebg/schwering_app_tracker/backend:main
+    container_name: schwering_app_tracker_backend
+    restart: unless-stopped
+    env_file: .env
+    labels:
+      - "com.centurylinklabs.watchtower.scope=schwering_app_tracker"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: schwering_app_tracker_watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: schwering_app_tracker_frontend schwering_app_tracker_backend -i 3600 --scope schwering_app_tracker
+    labels:
+      - "com.centurylinklabs.watchtower.scope=schwering_app_tracker"
