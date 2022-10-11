@@ -13,6 +13,8 @@ const lmic_pinmap lmic_pins = {
     .dio = {3, 4, 5},
 };
 
+const int resetPin = 2;
+
 SoftwareSerial gpsSerial(6, -1);
 TinyGPS gps;
 
@@ -80,6 +82,7 @@ void onEvent (ev_t event) {
             break;
         case EV_JOIN_TXCOMPLETE:
             Serial.println(F("EV_JOIN_TXCOMPLETE: no JoinAccept"));
+            digitalWrite(resetPin, LOW);
             break;
         default:
             Serial.print(F("Unknown event: "));
@@ -119,6 +122,10 @@ void send_gps(osjob_t* j){
 }
 
 void setup() {
+    digitalWrite(resetPin, HIGH);
+    delay(200); 
+    pinMode(resetPin, OUTPUT);
+    
     delay(5000);
     Serial.begin(9600);
     Serial.println(F("Starting"));
@@ -133,4 +140,7 @@ void setup() {
 
 void loop() {
     os_runloop_once();
+    
+    if(millis() > 300000)
+        digitalWrite(resetPin, LOW);
 }

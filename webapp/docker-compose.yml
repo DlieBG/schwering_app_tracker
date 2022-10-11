@@ -6,7 +6,7 @@ services:
     container_name: schwering_app_tracker_frontend
     restart: unless-stopped
     ports:
-      - 10005:80
+      - 10006:80
     labels:
       - "com.centurylinklabs.watchtower.scope=schwering_app_tracker"
 
