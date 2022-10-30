@@ -24,6 +24,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
+          platforms: linux/amd64,linux/arm/v7
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,6 +51,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
+          platforms: linux/amd64,linux/arm/v7
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
@@ -76,6 +78,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
+          platforms: linux/amd64,linux/arm/v7
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
