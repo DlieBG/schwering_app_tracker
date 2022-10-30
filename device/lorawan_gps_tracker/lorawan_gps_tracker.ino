@@ -1,22 +1,22 @@
 #include <lmic.h>
 #include <hal/hal.h>
 #include <SPI.h>
-#include <SoftwareSerial.h>
-#include <TinyGPS.h>
+//#include <SoftwareSerial.h>
+//#include <TinyGPS.h>
 
 const unsigned TX_INTERVAL = 10;
 
 const lmic_pinmap lmic_pins = {
-    .nss = 10,
-    .rxtx = LMIC_UNUSED_PIN,
-    .rst = 9,
-    .dio = {3, 4, 5},
+  .nss = 18,
+  .rxtx = LMIC_UNUSED_PIN,
+  .rst = 14,
+  .dio = {26, 34, 35},
 };
 
 const int resetPin = 2;
 
-SoftwareSerial gpsSerial(6, -1);
-TinyGPS gps;
+//SoftwareSerial gpsSerial(6, -1);
+//TinyGPS gps;
 
 static osjob_t sendjob;
 
@@ -99,18 +99,18 @@ void send_gps(osjob_t* j){
         Serial.read();
   
     for(unsigned long start = millis(); millis() - start < 2000 && !new_data;) {
-        while(gpsSerial.available() && !new_data) {
-            if(gps.encode(gpsSerial.read())) {
-                long lat, lon;
-                gps.get_position(&lat, &lon);
-                gps_data_string.concat(lat);
-                gps_data_string.concat("#");
-                gps_data_string.concat(lon);
-                gps_data_string.concat("#");
-                gps_data_string.concat(gps.speed());
-                new_data = true;
-            }
-        }
+//        while(gpsSerial.available() && !new_data) {
+//            if(gps.encode(gpsSerial.read())) {
+//                long lat, lon;
+//                gps.get_position(&lat, &lon);
+//                gps_data_string.concat(lat);
+//                gps_data_string.concat("#");
+//                gps_data_string.concat(lon);
+//                gps_data_string.concat("#");
+//                gps_data_string.concat(gps.speed());
+//                new_data = true;
+//            }
+//        }
     }
   
     LMIC_setTxData2(1, gps_data_string.c_str(), gps_data_string.length(), 0);
@@ -130,7 +130,7 @@ void setup() {
     Serial.begin(9600);
     Serial.println(F("Starting"));
 
-    gpsSerial.begin(9600);
+    //gpsSerial.begin(9600);
 
     os_init();
     LMIC_reset();
