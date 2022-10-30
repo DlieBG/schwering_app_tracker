@@ -30,7 +30,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: frontend
+          context: webapp/frontend
           push: true
           tags: ghcr.io/dliebg/schwering_app_tracker/frontend:${{ github.ref_name }}
   
@@ -56,7 +56,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: backend
+          context: webapp/backend
           push: true
           tags: ghcr.io/dliebg/schwering_app_tracker/backend:${{ github.ref_name }}
   
