@@ -5,14 +5,14 @@ import json, os, base64
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    clients_collection = MongoClient(os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')).get_database('schwering_app_tracker').get_collection('clients')
+    devices_collection = MongoClient(os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')).get_database('schwering_app_tracker').get_collection('devices')
     points_collection = MongoClient(os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')).get_database('schwering_app_tracker').get_collection('points')
 
-    points_collection.create_index('client', unique=True)
+    points_collection.create_index('device', unique=True)
 
     body = req.get_json()
 
-    clients_collection.update_one(
+    devices_collection.update_one(
         filter={
             'id': body['id']
         },
@@ -22,7 +22,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 'name': body['name'],
                 'type': 'heltec',
                 'downlink_url': body['downlink_url'],
-                'last_seen': datetime.now()
+                'last_seen': datetime.now(),
+                'last_rssi': body['hotspots'][0]['rssi'],
+                'last_hotspot': {
+                    'id': body['hotspots'][0]['id'],
+                    'name': body['hotspots'][0]['name'],
+                    'lat': body['hotspots'][0]['lat'],
+                    'lon': body['hotspots'][0]['lon']
+                }
             }
         },
         upsert=True
@@ -37,7 +44,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         
         points_collection.insert_one(
             document={
-                'client': body['id'],
+                'device': body['id'],
                 'type': 'heltec',
                 'timestamp': datetime.now(),
                 'position': {

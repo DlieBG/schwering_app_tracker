@@ -3,14 +3,21 @@ LoRaWAN GPS tracker module for schwering_app
 
 # Database
 ## Heltec
-Client
+Device
 ```json
 {
     id: string,
     name: string,
     type: 'heltec',
     downlink_url: string,
-    last_seen: date
+    last_seen: date,
+    last_rssi: number,
+    last_hotspot: {
+        id: string,
+        name: string,
+        lat: number,
+        lon: number
+    }
 }
 ```
 
