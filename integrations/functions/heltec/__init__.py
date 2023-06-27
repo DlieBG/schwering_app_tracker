@@ -41,7 +41,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 'position': {
                     'lat': lat / 1000000,
                     'lon': lon / 1000000,
-                    'speed': speed * 160.9344 
+                    'speed': speed * 185.2 
                 }
             }
         )
