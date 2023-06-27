@@ -8,7 +8,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     devices_collection = MongoClient(os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')).get_database('schwering_app_tracker').get_collection('devices')
     points_collection = MongoClient(os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')).get_database('schwering_app_tracker').get_collection('points')
 
-    points_collection.create_index('device', unique=True)
+    devices_collection.create_index('id', unique=True)
+    points_collection.create_index('device')
 
     body = req.get_json()
 
@@ -28,7 +29,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'id': body['hotspots'][0]['id'],
                     'name': body['hotspots'][0]['name'],
                     'lat': body['hotspots'][0]['lat'],
-                    'lon': body['hotspots'][0]['lon']
+                    'lon': body['hotspots'][0]['long']
                 }
             }
         },
