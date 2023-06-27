@@ -8,6 +8,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     clients_collection = MongoClient(os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')).get_database('schwering_app_tracker').get_collection('clients')
     points_collection = MongoClient(os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')).get_database('schwering_app_tracker').get_collection('points')
 
+    points_collection.create_index('client', unique=True)
+
     body = req.get_json()
 
     clients_collection.update_one(
