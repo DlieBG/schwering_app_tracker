@@ -21,7 +21,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             '$set': {
                 'id': body['id'],
                 'name': body['name'],
-                'type': 'heltec',
+                'type': 'iotracker',
                 'downlink_url': body['downlink_url'],
                 'last_seen': datetime.now(),
                 'last_rssi': body['hotspots'][0]['rssi'],
@@ -39,23 +39,32 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         upsert=True
     )
 
-    if(body['payload'] != 'aQ=='):
-        decoded_payload = base64.b64decode(body['payload'])
+    decoded_payload = body.get('decoded', {}).get('payload')
 
-        lat = (decoded_payload[3] << 24) | (decoded_payload[2] << 16) | (decoded_payload[1] << 8) | decoded_payload[0]
-        lon = (decoded_payload[7] << 24) | (decoded_payload[6] << 16) | (decoded_payload[5] << 8) | decoded_payload[4]
-        speed = (decoded_payload[11] << 24) | (decoded_payload[10] << 16) | (decoded_payload[9] << 8) | decoded_payload[8]
-        
+    if decoded_payload:
+        position = None
+        environment = None
+
+        if decoded_payload.get('gps'):
+            position = {
+                'lat': decoded_payload['gps']['latitude'],
+                'lon': decoded_payload['gps']['longitude']
+            }
+
+        if decoded_payload.get('temperature'):
+            environment = {
+                'temperature': decoded_payload['temperature']
+            }
+
         points_collection.insert_one(
             document={
                 'device': body['id'],
-                'type': 'heltec',
+                'type': 'iotracker',
                 'timestamp': datetime.now(),
-                'position': {
-                    'lat': lat / 1000000,
-                    'lon': lon / 1000000,
-                    'speed': speed / 185.2 
-                }
+                'battery_level': decoded_payload['batteryLevel'],
+                'position': position,
+                'environment': environment,
+                '__full_payload': decoded_payload
             }
         )
         
