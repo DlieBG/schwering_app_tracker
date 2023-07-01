@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 import azure.functions as func
 from datetime import datetime
-import json, os, base64
+import os
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -46,14 +46,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         environment = None
 
         if decoded_payload.get('gps'):
-            position = {
-                'lat': decoded_payload['gps']['latitude'],
-                'lon': decoded_payload['gps']['longitude']
-            }
+            if decoded_payload['gps']['latitude'] != 0 and decoded_payload['gps']['longitude'] != 0:
+                position = {
+                    'lat': decoded_payload['gps']['latitude'],
+                    'lon': decoded_payload['gps']['longitude']
+                }
 
         if decoded_payload.get('temperature'):
             environment = {
-                'temperature': decoded_payload['temperature']
+                'temperature': decoded_payload.get('temperature'),
+                'light_intensity': decoded_payload.get('lightIntensity')
             }
 
         points_collection.insert_one(
@@ -62,6 +64,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 'type': 'iotracker',
                 'timestamp': datetime.now(),
                 'battery_level': decoded_payload['batteryLevel'],
+                'button': decoded_payload['uplinkReasonButton'],
+                'movement': decoded_payload['uplinkReasonMovement'],
                 'position': position,
                 'environment': environment,
                 '__full_payload': decoded_payload

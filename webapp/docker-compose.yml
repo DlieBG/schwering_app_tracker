@@ -17,6 +17,13 @@ services:
     env_file: .env
     labels:
       - "com.centurylinklabs.watchtower.scope=schwering_app_tracker"
+  
+  geopy:
+    image: ghcr.io/dliebg/schwering_app_tracker/geopy:main
+    container_name: schwering_app_tracker_geopy
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.scope=schwering_app_tracker"
 
   watchtower:
     image: containrrr/watchtower

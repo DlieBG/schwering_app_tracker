@@ -1,4 +1,4 @@
-function Decoder(bytes) {
+function Decoder(bytes, _, _) {
   // Decoded result
   const decoded = {};
   // Pointer/index within the byte stream

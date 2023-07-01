@@ -2,3 +2,7 @@
 
 html, body { height: 100%; color: #fff; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.leaflet-pane.leaflet-shadow-pane {
+    display: none;
+}
