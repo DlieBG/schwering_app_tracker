@@ -42,7 +42,7 @@ def insert_point(payload: PayloadBody, type: str, point: dict):
     point['device'] = payload.id
     point['type'] = type
     point['timestamp'] = datetime.now()
-    point['__raw_body'] = payload
+    point['__raw_payload'] = payload.payload
 
     mongo.get_collection('points').insert_one(
         document=point
