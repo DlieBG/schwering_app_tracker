@@ -9,8 +9,8 @@ class Hotspot(BaseModel):
     channel: int
     frequency: float
     id: str
-    lat: str
-    long: str
+    lat: float
+    long: float
     name: str
     reported_at: datetime
     rssi: int
