@@ -9,12 +9,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { AuthenticationInterceptor } from './interceptors/authentication.interceptor';
 import { WidgetComponent } from './components/widget/widget.component';
+import { HomeComponent } from './components/home/home.component';
+import { TestComponent } from './components/test/test.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     UnauthorizedComponent,
     WidgetComponent,
+    HomeComponent,
+    TestComponent,
   ],
   imports: [
     BrowserModule,
