@@ -50,5 +50,5 @@ def decode_packet(packet_b64):
 
 @router.post('/')
 async def upstream(payload: PayloadBody):
-    db.update_device(payload)
+    db.update_device(payload, 'tabs')
     db.insert_point(payload, 'tabs', decode_packet(payload.payload))

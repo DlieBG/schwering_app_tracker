@@ -11,7 +11,7 @@ mongo = MongoClient(os.getenv('MONGO_URI')).get_database('schwering_app_tracker'
 mongo.get_collection('devices').create_index('id', unique=True)
 mongo.get_collection('points').create_index('device')
 
-def update_device(payload: PayloadBody):
+def update_device(payload: PayloadBody, type: str):
     mongo.get_collection('devices').update_one(
         filter={
             'id': payload.id
@@ -20,7 +20,7 @@ def update_device(payload: PayloadBody):
             '$set': {
                 'id': payload.id,
                 'name': payload.name,
-                'type': 'dragino',
+                'type': type,
                 'downlink_url': payload.downlink_url,
                 'last_seen': datetime.now(),
                 'last_rssi': payload.hotspots[0].rssi,
