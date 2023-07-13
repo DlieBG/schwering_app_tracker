@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from body import PayloadBody
 import db, base64, struct
 
@@ -49,6 +49,7 @@ def decode_packet(packet_b64):
     }
 
 @router.post('/')
-async def upstream(payload: PayloadBody):
+async def upstream(payload = Body()):
+    print(payload)
     db.update_device(payload)
     db.insert_point(payload, 'tabs', decode_packet(payload.payload))
